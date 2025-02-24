@@ -1,4 +1,4 @@
+import couponRouter from "./coupon/index.js";
 // import customerRouter from "./customer/index.js";
-// import marketingRouter from "./marketing/index.js";
 
-// export default [customerRouter, marketingRouter];
+export default [couponRouter];
