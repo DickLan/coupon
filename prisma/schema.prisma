@@ -7,3 +7,37 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model coupon {
+  id                Int                 @id @default(autoincrement())
+  title             String
+  type              String
+  description       String?             @db.Text
+  discount_value    Float?              @db.Float
+  max_usage         Int
+  used_count        Int                 @default(0)
+  start_date        DateTime            @db.DateTime(0)
+  end_date          DateTime            @db.DateTime(0)
+  coupon_redemption coupon_redemption[]
+}
+
+model coupon_redemption {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  coupon_id  Int
+  status     Int       @db.TinyInt
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  used_at    DateTime? @db.DateTime(0)
+  coupon     coupon    @relation(fields: [coupon_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "coupon_redemption_coupon_id_foreign")
+  user       user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "coupon_redemption_user_id_foreign")
+
+  @@index([coupon_id], map: "coupon_redemption_coupon_id_foreign")
+  @@index([user_id], map: "coupon_redemption_user_id_foreign")
+}
+
+model user {
+  id                Int                 @id @default(autoincrement())
+  name              String?
+  email             String?             @unique(map: "user_email_unique")
+  coupon_redemption coupon_redemption[]
+}
