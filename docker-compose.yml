@@ -13,7 +13,7 @@ services:
       - DB_HOST=db
       - DB_USER=root
       - DB_PASS=password
-      - DB_NAME=CRM
+      - DB_NAME=coupon
     depends_on:
       - db
 
@@ -24,7 +24,7 @@ services:
       - "3311:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=CRM
+      - MYSQL_DATABASE=coupon
       - MYSQL_PASSWORD=password
     volumes:
       - db-data:/var/lib/mysql

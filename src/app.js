@@ -1,21 +1,21 @@
 import dotenv from "dotenv";
 import express from "express";
 import config from "../config/config.js";
-import routers from "./routes/index.js";
+// import routers from "./routes/indssaex.js";
 
 // 載入環境變量
-dotenv.config()
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 // 設定中間件、路由等
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World coupon!");
 });
 
-for (const router of routers) {
-  app.use("/api", router);
-}
+// for (const router of routers) {
+//   app.use("/api", router);
+// }
 
 // 啟動伺服器
 app.listen(config.server.port, () => {
