@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import config from "../config/config.js";
 import routers from "./routes/index.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 // 載入環境變量
 dotenv.config();
@@ -12,6 +13,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World coupon!");
 });
+
+app.use(errorHandler);
 
 for (const router of routers) {
   app.use("/api", router);

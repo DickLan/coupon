@@ -11,12 +11,12 @@ export async function claimCoupomn(userId, couponId) {
         WHERE id = ${couponId} AND used_count < max_usage
       `;
       // 若沒有更新成功，表示該優惠券已超過領取上限
-      if (updateResult.affectedRows === 0) {
+      if (updateResult === 0) {
         throw new Error("該優惠券已領取完畢或不可領取");
       }
 
       // 新增優惠券醒取紀錄 預設 status = 1 (unused)
-      const redemption = await tx.redemption.create({
+      const redemption = await tx.coupon_redemption.create({
         data: {
           user_id: userId,
           coupon_id: couponId,
@@ -26,8 +26,8 @@ export async function claimCoupomn(userId, couponId) {
 
       return redemption;
     });
-    res.json({ success: true, data: result });
+    return result;
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    return { success: false, error: error.message };
   }
 }
