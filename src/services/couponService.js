@@ -81,3 +81,49 @@ export async function useCouponService(userId, couponId) {
     throw error;
   }
 }
+
+// 查詢使用者所有的優惠券（未使用、已使用、已過期）
+export async function getUserCouponsService(userId) {
+  try {
+    // 找出該使用者的所有領取紀錄，並包含對應的優惠券資訊
+    const redemptions = await prisma.coupon_redemption.findMany({
+      where: { user_id: userId },
+      include: { coupon: true },
+    });
+
+    const now = new Date();
+
+    // 依照 status 與日期計算最終狀態
+    //  1 -> 未使用；若過了 end_date -> 已過期
+    //  2 -> 已使用
+    //  3 -> 已過期
+    const result = redemptions.map((item) => {
+      let displayStatus;
+
+      if (item.status === 2) {
+        displayStatus = "已使用";
+      } else if (now > item.coupon.end_date) {
+        displayStatus = "已過期";
+      } else {
+        displayStatus = "未使用";
+      }
+      // 回傳轉換成 camelCase 以配合前端使用
+      return {
+        redemptionId: item.id,
+        couponId: item.coupon_id,
+        couponTitle: item.coupon.title,
+        couponType: item.coupon.type,
+        startDate: item.coupon.start_date,
+        endDate: item.coupon.end_date,
+        status: displayStatus,
+        usedAt: item.used_at,
+        createdAt: item.created_at,
+      };
+    });
+
+    return result;
+  } catch (error) {
+    // 直接拋錯讓 controller 捕獲
+    throw error;
+  }
+}
