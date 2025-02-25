@@ -5,7 +5,32 @@ const prisma = new PrismaClient();
 export async function claimCoupomn(userId, couponId) {
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // 使用條件更新，確保不會超過最大使用數量
+
+      // 檢查優惠券是否過期
+      const couponCheck = await tx.coupon.findUnique({
+        where: {
+          id: couponId,
+        },
+      })
+
+      if (couponCheck.end_date < new Date()) {
+        throw new Error("該優惠券已過期");
+      }
+
+      // 檢查此 user 是否已經領取過此優惠券
+      const userRedemption = await tx.coupon_redemption.findFirst({
+        where: {
+          user_id: userId,
+          coupon_id: couponId,
+        },
+      })
+      if (userRedemption) {
+        throw new Error("該使用者已領取過此優惠券");
+      }
+
+
+      // 使用原子操作條件更新，確保不會超過最大使用數量
+      // 也可以用 Redis 等工具的分布式鎖功能
       const updateResult = await tx.$executeRaw`
         UPDATE coupon 
         SET used_count = used_count + 1 
@@ -49,7 +74,7 @@ export async function useCouponService(userId, couponId) {
         },
       });
       if (!redemption) {
-        throw new Error("找不到可使用的優惠券，可能已使用或未領取");
+        throw new Error("找不到可使用的優惠券");
       }
 
       // 取得優惠券資訊，檢查有效期
