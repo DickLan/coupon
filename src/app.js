@@ -3,12 +3,16 @@ import express from "express";
 import config from "../config/config.js";
 import routers from "./routes/index.js";
 import errorHandler from "./middlewares/errorHandler.js";
-
+import { swaggerUi, specs } from "./swagger.js";
 // 載入環境變量
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// Swagger 文件路由
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
 // 設定中間件、路由等
 app.get("/", (req, res) => {
   res.send("Hello World coupon!");

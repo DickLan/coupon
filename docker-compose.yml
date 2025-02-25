@@ -1,10 +1,12 @@
 services:
   app:
+    container_name: coupon_app
     build: . # 使用同一個專案目錄中的 Dockerfile 建立映像
     working_dir: /app
     volumes:
-      - .:/app
-      # - /app/node_modules # 如果想使用 Dockerfile 裡面安裝好的 node_modules，可以移除這行
+    - .:/app
+    # - /app/node_modules # 如果想使用 Dockerfile 裡面安裝好的 node_modules，可以移除這行
+
     ports:
       - "3001:3000"
     command: npm run dev
@@ -18,8 +20,8 @@ services:
       - db
 
   db:
+    container_name: coupon_mysql
     image: mysql:8.0
-    container_name: coupon_db
     ports:
       - "3311:3306"
     environment:
