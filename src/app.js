@@ -18,11 +18,11 @@ app.get("/", (req, res) => {
   res.send("Hello World coupon!");
 });
 
-app.use(errorHandler);
-
 for (const router of routers) {
   app.use("/api", router);
 }
+
+app.use(errorHandler);
 
 // 啟動伺服器
 app.listen(config.server.port, () => {

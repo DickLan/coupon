@@ -6,9 +6,11 @@ import {
 
 export async function getClaimCoupons(req, res, next) {
   const { userId, couponId } = req.body;
+
   try {
     const result = await claimCoupomn(userId, couponId);
-    res.status(200).json({ data: result });
+    res.status(200).json({ message: "優惠券領取成功", data: result });
+
   } catch (error) {
     next(error);
   }
@@ -18,7 +20,7 @@ export async function useCoupon(req, res, next) {
   const { userId, couponId } = req.body;
   try {
     const result = await useCouponService(userId, couponId);
-    res.status(200).json({ data: result });
+    res.status(200).json({ message: "優惠券使用成功", data: result });
   } catch (error) {
     next(error);
   }
@@ -35,7 +37,7 @@ export async function getUserCoupons(req, res, next) {
     }
 
     const result = await getUserCouponsService(parseInt(userId, 10));
-    res.status(200).json({ data: result });
+    res.status(200).json({ message: "查詢成功", data: result });
   } catch (error) {
     next(error);
   }
