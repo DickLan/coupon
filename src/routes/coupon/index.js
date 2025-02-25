@@ -25,7 +25,7 @@ const router = Router();
  *                 type: number
  *             example:
  *               userId: 1
- *               couponId: 100
+ *               couponId: 1
  *     responses:
  *       200:
  *         description: 領取成功
@@ -65,7 +65,7 @@ router.post("/claim-coupon", getClaimCoupons);
  *                 type: number
  *             example:
  *               userId: 1
- *               couponId: 100
+ *               couponId: 1
  *     responses:
  *       200:
  *         description: 優惠券使用成功
@@ -131,7 +131,7 @@ router.post("/use-coupon", useCoupon);
  *                     format: date-time
  *               example:
  *                 - redemptionId: 1
- *                   couponId: 100
+ *                   couponId: 1
  *                   couponTitle: "滿千折百"
  *                   couponType: "discount"
  *                   startDate: "2023-01-01T00:00:00.000Z"
