@@ -71,9 +71,6 @@ export async function useCouponService(userId, couponId) {
           status: 1, // 未使用
         },
       });
-      if (!redemption) {
-        throw new Error("找不到可使用的優惠券");
-      }
 
       // 取得優惠券資訊，檢查有效期
       const coupon = await tx.coupon.findUnique({
@@ -86,6 +83,10 @@ export async function useCouponService(userId, couponId) {
       const now = new Date();
       if (now < coupon.start_date || now > coupon.end_date) {
         throw new Error("該優惠券不在有效期內");
+      }
+
+      if (!redemption) {
+        throw new Error("找不到可使用的優惠券");
       }
 
       // 更新 redemption 狀態為已使用 (status = 2), 並設置 used_at

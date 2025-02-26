@@ -1,18 +1,19 @@
 # Coupon 系統 設計說明
 
-本系統為「優惠券系統 (coupon)」，提供使用者領取優惠券、使用優惠券及查詢優惠券狀態等功能：
-1.系統在領取時會檢查優惠券的可用數量並確保不會超發
-2.在使用時會驗證有效期限與狀態
-3.能夠查詢使用者所有的優惠券狀態
+本系統為「優惠券系統」，旨在提供優惠券管理功能，包括：  
+1.領取優惠券：在領取優惠券時，系統會檢查其可用數量，以確保優惠券不會超發。  
+2.使用優惠券：使用前，系統會驗證優惠券的有效期限與當前狀態，確保其有效。  
+3.查詢優惠券：用戶可以查詢他們所持有的所有優惠券的狀態，包括未使用、已使用和已過期。
 
 ---
+
 ## 目錄
+
 - [啟用程式](#啟用程式)
 - [API 測試](#api-測試)
 - [專案架構](#專案架構)
 - [功能設計說明](#功能設計說明)
 - [資料庫設計](#資料庫設計)
-
 
 ---
 
@@ -27,11 +28,47 @@
 
 ## API 測試
 
+### API 文檔和測試介面
+
 - 進入 [http://localhost:3001/api-docs] 可查看並操作 Swagger UI。
+
+### 核心 API 操作
+
 - 核心 API 範例：
   - `POST /api/claim-coupon`：領取優惠券
   - `POST /api/use-coupon`：使用優惠券
   - `GET /api/user-coupons`：查詢使用者所有優惠券
+
+### 測試範例
+
+- **領取優惠券測試範例**：
+
+```
+  ＊範例 1：成功領取優惠券
+    POST /api/claim-coupon body: { "userId": 1, "couponId": 1 }
+  ＊範例 2：重複領取優惠券
+    POST /api/claim-coupon body: { "userId": 1, "couponId": 2 }
+```
+
+- **使用優惠券測試範例**：
+
+```
+  ＊範例 1：成功使用優惠券
+    POST /api/use-coupon body: { "userId": 1, "couponId": 1 }
+  ＊範例 2：找不到可用優惠券
+    POST /api/claim-coupon body: { "userId": 1, "couponId": 2 }
+  ＊範例 3：優惠券已過期
+    POST /api/claim-coupon body: { "userId": 1, "couponId": 3 }
+```
+
+- **查詢使用者所有優惠券範例**：
+
+```
+  ＊範例 1：查詢成功
+    GET /api/user-coupons?userId=1
+  ＊範例 2：使用者不存在
+    GET /api/claim-coupon?userId=4
+```
 
 ---
 
@@ -42,10 +79,10 @@ project/
 ├── .gitignore               # 忽略不需提交的檔案，例如 node_modules 等
 ├── docker-compose.yml       # Docker Compose 設定檔
 ├── Dockerfile               # 建置 Docker 映像檔所需的檔案
-├── package.json             # 專案基本設定與依賴 
+├── package.json             # 專案基本設定與依賴
 ├── package-lock.json        # npm 依賴鎖定檔
 ├── prisma/
-│   └── schema.prisma        # Prisma 主要設定檔 
+│   └── schema.prisma        # Prisma 主要設定檔
 ├── src/
 │   ├── app.js               # Express 主要初始化檔 & 伺服器啟動邏輯
 │   ├── routes/
@@ -70,6 +107,7 @@ project/
 本系統主要提供以下核心功能：
 
 ### 領取優惠券 (claimCoupon)
+
 - **流程**
   - 檢查優惠券是否還在有效期內，並確認尚未超過可領取次數 (`max_usage`)。
   - 檢查使用者是否已領取過相同優惠券（避免重複領取）。
@@ -77,12 +115,14 @@ project/
   - 建立 `coupon_redemption` 紀錄，表示使用者成功領取。
 
 ### 使用優惠券 (useCoupon)
+
 - **流程**
   - 查詢使用者對應的 `coupon_redemption`，且狀態為「未使用」 (`status=1`)。
   - 檢查優惠券有效期（`start_date ~ end_date`）。
   - 更新優惠券狀態為「已使用」 (`status=2`)，並記錄使用時間 (`used_at`)。
 
 ### 查詢使用者所有優惠券 (getUserCoupons)
+
 - **流程**
   - 根據使用者 ID，查詢所有 `coupon_redemption` 與關聯的 `coupon`。
   - 根據目前時間判斷各優惠券的狀態（未使用、已使用、已過期）。
@@ -93,6 +133,7 @@ project/
 ## 資料庫設計
 
 ### 1. 優惠券表：儲存優惠券的基本資訊
+
 ```sql
 CREATE TABLE `coupon` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -109,6 +150,7 @@ CREATE TABLE `coupon` (
 ```
 
 ### 2. 用戶表：紀錄用戶基本資訊
+
 ```sql
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -120,6 +162,7 @@ CREATE TABLE `user` (
 ```
 
 ### 3. 優惠券與用戶關聯表：紀錄用戶領取優惠券的資訊 (多對多)
+
 ```sql
 CREATE TABLE `coupon_redemption` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -134,3 +177,4 @@ CREATE TABLE `coupon_redemption` (
   CONSTRAINT `fk_coupon_redemption_coupon` FOREIGN KEY (`coupon_id`) REFERENCES `coupon` (`id`),
   CONSTRAINT `fk_coupon_redemption_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+```
